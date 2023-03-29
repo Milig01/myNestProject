@@ -1,0 +1,119 @@
+Ключевые маршруты:
+
+app.controller
+POST http://localhost:3000/registration - эндпоинт для регистрации, доступный всем пользователям
+@Body
+{
+    "name": "Петр",
+    "surname": "Иванов",
+    "age": 18,
+    "phoneNumber": "+798345738564",
+    "email": "peter@mail.ru",
+    "password": "00000000"
+}
+
+POST http://localhost:3000/auth/login - эндпоинт для авторизации - получаем токен
+@Body
+{
+    "email": "peter@mail.ru",
+    "password": "00000000"
+}
+
+эндпоинты для авторизованных:
+
+users.controller
+PUT http://localhost:3000/users - обновить свой email или пароль
+@Body
+{
+    "email": "newEmail",
+    "password": "newPassword"
+}
+
+DELETE http://localhost:3000/users - удалить себя из таблицы user, но профиль останется
+
+@Role("Admin")
+DELETE http://localhost:3000/users/:id - удалить пользователя из таблицы user по id - доступно для админа
+
+
+profiles.controller
+GET http://localhost:3000/profiles - получить свой профиль, с которого авторизовались
+DELETE http://localhost:3000/profiles - удалить себя из таблицы profile, но запись в таблице user останется
+PUT http://localhost:3000/profiles - обновить свой профиль
+@Body
+{
+    "name": "newName", 
+    "surname": "newSurname",
+    "age": 21,
+    "phoneNumber": "+7856574644334" 
+}
+
+@Role("Admin")
+GET http://localhost:3000/profiles/:id - получить профиль по id, либо получить всех указав id = "all"
+
+@Role("Admin")
+DELETE http://localhost:3000/profiles/:id - удалить по id
+
+
+roles.controller
+GET http://localhost:3000/roles - узнать свои роли
+
+@Role("Admin")
+GET http://localhost:3000/roles/:id - узнать роли пользователя по id,
+
+@Role("Admin")
+POST http://localhost:3000/roles - добавить пользователю с email = userEmail, роль role = roleName
+@Body
+{
+    "userEmail": "ivan@mail.ru",
+    "roleName": "Admin"
+}
+
+@Role("Admin")
+DELETE http://localhost:3000/roles - удалить у пользователя с email = userEmail, роль role = roleName
+@Body
+{
+    "userEmail": "ivan@mail.ru",
+    "roleName": "Admin"
+}
+
+
+text_block.controller
+GET http://localhost:3000/text-block - получить все блоки из базы данных вместе с картинками, 
+в возвращаемом обьекте в свойстве {image} будет храниться буфер картинки 
+
+GET http://localhost:3000/text-block/:group - получить все блоки, у которых столбец group равен group - из параметра, с картинками
+
+@Role("Admin")
+POST http://localhost:3000/text-block - добавить блок, в форме с ключом image нужно передать изображение
+@Body form-data
+{
+    "uniqName": "main-block",
+    "name": "block",
+    "text": "hello!",
+    "group": "main-page",
+    "image": SELECT file
+}
+
+@Role("Admin")
+PUT http://localhost:3000/text-block - обновляет только те поля, которые были введены, если поле image пусто - остается старая картинка
+@Body form-data
+{
+    "uniqName": "main-block", // обязательное поле
+    "name": "newBlock", // обязательное поле
+    "text": "newHello!",
+    "group": "main-page-new",
+    "image": SELECT file
+}
+
+@Role("Admin")
+DELETE http://localhost:3000/text-block/:uniqName - удаляет блок по его uniqName
+
+
+files.controller
+GET http://localhost:3000/files - получить все файлы из базы данных
+
+POST http://localhost:3000/files/upload - загружает файл из формы с ключом "file" и сохраняет его в папке upload
+и сохраняет в базе данных с essenceTable = null, essenceId = null
+
+@Role("Admin")
+DELETE http://localhost:3000/files - удаляет все "ненужные файлы"
